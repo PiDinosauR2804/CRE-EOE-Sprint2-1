@@ -258,6 +258,12 @@ class EoETrainer(BaseTrainer):
         for i in range(-1, self.task_idx + 1):
             mean, cov, task_mean, task_cov = self.get_mean_and_cov(model, dataset, data_collator, i)
             model.new_statistic(mean, cov, task_mean, task_cov, i)
+            
+            # un_mean, un_cov, un_task_mean, un_task_cov = self.get_mean_and_cov(model, dataset, data_collator, False, i)
+            # model.new_statistic_uninstructed_representation(un_mean, un_cov, un_task_mean, un_task_cov, self.task_idx)
+            
+            # in_mean, in_cov, in_task_mean, in_task_cov = self.get_mean_and_cov(model, dataset, data_collator, True, i)
+            # model.new_statistic_instructed_representation(in_mean, in_cov, in_task_mean, in_task_cov, self.task_idx)
 
     @torch.no_grad()
     def get_mean_and_cov(self, model, dataset, data_collator, expert_id=0):
