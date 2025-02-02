@@ -49,10 +49,12 @@ class EoETrainer(BaseTrainer):
             train_data = data.filter(cur_labels, "train")
             train_dataset = BaseDataset(train_data)
             num_train_labels = len(cur_labels)
-            aug_train_data, num_train_labels = relation_data_augmentation(
-                copy.deepcopy(train_data), len(seen_labels), copy.deepcopy(data.id2label), marker_ids, self.args.augment_type
-            )
-            aug_train_dataset = BaseDataset(aug_train_data)
+            # aug_train_data, num_train_labels = relation_data_augmentation(
+            #     copy.deepcopy(train_data), len(seen_labels), copy.deepcopy(data.id2label), marker_ids, self.args.augment_type
+            # )
+            # aug_train_dataset = BaseDataset(aug_train_data)
+            
+            
             model.new_task(num_train_labels)
 
             if self.task_idx == 0:
@@ -62,7 +64,7 @@ class EoETrainer(BaseTrainer):
             else:
                 self.train(
                     model=model,
-                    train_dataset=aug_train_dataset,
+                    train_dataset=train_dataset,
                     data_collator=default_data_collator
                 )
 
