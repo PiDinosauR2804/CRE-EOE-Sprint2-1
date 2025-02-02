@@ -53,8 +53,7 @@ class EoETrainer(BaseTrainer):
                 model.take_generate_description_MrLinh_from_file(cur_label, data.label2id[cur_label], self.args.dataset_name, tokenizer)
 
             pool = model.get_description_ids(cur_labels)
-            old_pool = model.get_description_ids(seen_labels)
-            train_data_have_des = data.filter_and_add_desciption_and_old_description(cur_labels, pool, seen_labels, old_pool) 
+            train_data_have_des = data.filter_and_add_desciption(cur_labels, pool) 
             
             num_train_labels = len(cur_labels)
             
@@ -292,7 +291,7 @@ class EoETrainer(BaseTrainer):
             inputs.update({"task_idx": expert_id})
 
             prelogit = model(**inputs)
-
+            # print(prelogit.shape)
             prelogits.extend(prelogit.tolist())
             labels.extend(label.tolist())
 

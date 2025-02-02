@@ -104,9 +104,9 @@ def relation_data_augmentation(data, num_labels, id2label, marker_id=(35022, 350
             new_ins.update(description_list)
 
             augment_data[augment_label].append(new_ins)
-            print("----------------------------")
-            for key, value in new_ins.items():
-                print(f"  {key}: {value}") 
+            # print("----------------------------")
+            # for key, value in new_ins.items():
+            #     print(f"  {key}: {value}") 
         for _, v in augment_data.items():
             data.extend(v)
         num_train_labels += len(new_label_dict)
@@ -142,9 +142,9 @@ def relation_data_augmentation(data, num_labels, id2label, marker_id=(35022, 350
             # Thêm các key-value vào new_ins
             new_ins.update(description_list)
             
-            print("----------------------------")
-            for key, value in new_ins.items():
-                print(f"  {key}: {value}") 
+            # print("----------------------------")
+            # for key, value in new_ins.items():
+            #     print(f"  {key}: {value}") 
             data.append(new_ins)
         num_train_labels += 1
 

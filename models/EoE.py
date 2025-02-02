@@ -10,6 +10,9 @@ import torch.nn.functional as F
 from models import PeftFeatureExtractor
 from utils import mahalanobis
 
+import re
+
+
 
 class EoE(nn.Module):
     def __init__(self, config):
@@ -30,9 +33,9 @@ class EoE(nn.Module):
 
         self.classifier_hidden_size = self.feature_extractor.bert.config.hidden_size
         self.query_size = self.feature_extractor.bert.config.hidden_size
-        if config.task_name == "RelationExtraction":
-            self.classifier_hidden_size = 2 * self.feature_extractor.bert.config.hidden_size
-            self.query_size = 2 * self.feature_extractor.bert.config.hidden_size
+        # if config.task_name == "RelationExtraction":
+        #     self.classifier_hidden_size = 2 * self.feature_extractor.bert.config.hidden_size
+        #     self.query_size = 2 * self.feature_extractor.bert.config.hidden_size
 
         self.dropout = nn.Dropout(self.feature_extractor.bert.config.hidden_dropout_prob)
         self.n_layer = self.feature_extractor.bert.config.num_hidden_layers
@@ -49,7 +52,38 @@ class EoE(nn.Module):
             }
         ]
 
+
+        self.tau = 0.8
+        self.label_description = {}
+        self.label_description_ids = {}
+        self.number_description = 3
         self.classifier = nn.ParameterList()
+
+    def preprocess_text(self, text):
+        text = text.lower()
+        text = re.sub(r'[^a-zA-Z0-9.,?!()\s]', '', text)
+        text = text.strip()
+        
+        return text    
+        
+    def get_description(self, labels):
+        pool = {}
+        for label in labels:
+            pool[label] = copy.deepcopy(self.label_description[label])
+        return pool
+    
+    def get_description_ids(self, labels):
+        pool = {}
+        for label in labels:
+            if label in self.label_description_ids.keys():
+                pool[label] = copy.deepcopy(self.label_description_ids[label])
+            else:
+                print("Not Found")
+        return pool    
+    
+    def preprocess_tokenize_desciption(self, raw_text, tokenizer):
+        result = tokenizer(raw_text)
+        return result['input_ids']
 
     def take_generate_description_MrLinh_from_file(self, label, idx_label, dataset_name, tokenizer):
         if dataset_name.lower() == 'fewrel':
@@ -286,6 +320,50 @@ class EoE(nn.Module):
         if self.training:
             offset_label = labels - self.num_old_labels
             loss = F.cross_entropy(logits, offset_label)
+            
+            # Add thêm ====================================================================================
+            anchor_hidden_states = hidden_states
+            
+            description_ids_list = {k: v for k, v in kwargs.items() if k.startswith('description_ids_')}
+            total_log_term = torch.zeros(1, device=self.device)
+            for k, v in description_ids_list.items():
+                # print("2")
+                description_hidden_states = self.feature_extractor(
+                    input_ids=v,
+                    attention_mask=(v != 0),
+                    indices=indices,
+                    extract_mode="cls",
+                    **kwargs
+                )
+                
+                # stack_u_c = []
+                # for label in offset_label:
+                #     stack_u_c.append(self.description_matrix[label])
+                # stack_u_c = torch.stack(stack_u_c)
+                # stack_u_c = torch.tensor(stack_u_c, device=self.device)
+                
+                numerator_list = []
+                denominator_list = [] 
+                for idx_ in range(len(self.expert_distribution[self.num_tasks]["class_mean"])):
+                    for idx, class_mean in enumerate(self.expert_distribution[self.num_tasks]["class_mean"][idx_]):
+                        denominator_list.append(torch.exp(torch.matmul(anchor_hidden_states, class_mean.unsqueeze(1)) / self.tau))
+                        numerator_list.append(torch.exp(torch.matmul(anchor_hidden_states, class_mean.unsqueeze(1)) / self.tau))
+                    # numerator_list.append(stack_u_c[:,idx].unsqueeze(-1) * torch.exp(torch.matmul(anchor_hidden_states, class_mean.unsqueeze(1)) / self.tau))
+
+                                
+                denominator_list.append(torch.exp((anchor_hidden_states * description_hidden_states).sum(dim=1, keepdim=True) / self.tau))
+                denominator = torch.sum(torch.stack(denominator_list), dim=0)
+                # Compute log term
+                log_term = torch.zeros(batch_size, 1, device=self.device)
+                for numerator in numerator_list:
+                    log_term += torch.log(numerator / denominator)
+
+                total_log_term += (log_term.mean() / self.num_old_labels)
+            # print("----CR Loss-------")
+            # print((total_log_term / len(description_ids_list)).item())
+            loss += (total_log_term / len(description_ids_list)).squeeze(0)
+            
+            # Add thêm ====================================================================================
 
         logits = logits[:, :self.class_per_task]
         preds = logits.max(dim=-1)[1] + self.class_per_task * indices
