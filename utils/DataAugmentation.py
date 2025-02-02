@@ -130,7 +130,8 @@ def relation_data_augmentation(data, num_labels, id2label, marker_id=(35022, 350
         num_train_labels += 1
 
     for idx in range(len(data)):
-        for del_key in ["sentence", "input_ids_without_marker", "subject_st", "subject_ed", "object_st", "object_ed"]:
+        # for del_key in ["sentence", "input_ids_without_marker", "subject_st", "subject_ed", "object_st", "object_ed"]:
+        for del_key in ["sentence", "input_ids_without_marker"]:
             if del_key in data[idx]:
                 del data[idx][del_key]
 
