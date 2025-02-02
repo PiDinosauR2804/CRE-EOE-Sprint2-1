@@ -51,6 +51,26 @@ class EoE(nn.Module):
 
         self.classifier = nn.ParameterList()
 
+    def take_generate_description_MrLinh_from_file(self, label, idx_label, dataset_name, tokenizer):
+        if dataset_name.lower() == 'fewrel':
+            file_path = 'datasets/FewRel/prompt_label/FewRel/relation_description_detail_10.txt'
+        if dataset_name.lower() == 'tacred':
+            file_path = 'datasets/TACRED/prompt_label/TACRED/relation_description_detail_10.txt'
+        with open(file_path, 'r', encoding='utf-8', errors='ignore') as file:
+            data = file.readlines()
+                
+
+        # print(idx_label)
+        raw_descriptions = data[idx_label].split('\t')[2:2+self.number_description]
+        # for raw_description in raw_descriptions:
+        #     print('------------------')
+        #     print(raw_description)
+        #     print(len(raw_description.split(' ')))
+        
+        # Lưu mô tả nhãn vào label_description        
+        self.label_description[label] = [self.preprocess_text(desc) for desc in raw_descriptions]
+        self.label_description_ids[label] = [self.preprocess_tokenize_desciption(desc, tokenizer) for desc in self.label_description[label]]
+
     def load_expert_model(self, expert_model):
         ckpt = torch.load(expert_model)
         self.feature_extractor.bert.load_state_dict(ckpt["model"])
