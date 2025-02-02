@@ -92,6 +92,11 @@ def relation_data_augmentation(data, num_labels, id2label, marker_id=(35022, 350
                 "subject_marker_st": obj_st,
                 "object_marker_st": subj_st,
                 "labels": augment_label,
+                'subject_st': ins["subject_st"],
+                'subject_ed': ins["subject_ed"],
+                'object_st': ins["object_st"],
+                'object_ed': ins["object_ed"],
+                
             })
         for _, v in augment_data.items():
             data.extend(v)
@@ -116,7 +121,11 @@ def relation_data_augmentation(data, num_labels, id2label, marker_id=(35022, 350
                 "input_ids": input_ids,
                 "subject_marker_st": obj_st,
                 "object_marker_st": subj_st,
-                "labels": num_train_labels
+                "labels": num_train_labels,
+                'subject_st': subj_st,
+                'subject_ed': subj_ed,
+                'object_st': obj_st,
+                'object_ed': obj_ed,
             })
         num_train_labels += 1
 
@@ -127,3 +136,4 @@ def relation_data_augmentation(data, num_labels, id2label, marker_id=(35022, 350
 
     print(new_label_dict)
     return data, num_train_labels
+
