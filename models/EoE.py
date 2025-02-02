@@ -347,7 +347,7 @@ class EoE(nn.Module):
                 for idx_ in range(len(self.expert_distribution[self.num_tasks]["class_mean"])):
                     for idx, class_mean in enumerate(self.expert_distribution[self.num_tasks]["class_mean"][idx_]):
                         denominator_list.append(torch.exp(torch.matmul(anchor_hidden_states, class_mean.unsqueeze(1)) / self.tau))
-                        numerator_list.append(torch.exp(torch.matmul(anchor_hidden_states, class_mean.unsqueeze(1)) / self.tau))
+                        # numerator_list.append(torch.exp(torch.matmul(anchor_hidden_states, class_mean.unsqueeze(1)) / self.tau))
                     # numerator_list.append(stack_u_c[:,idx].unsqueeze(-1) * torch.exp(torch.matmul(anchor_hidden_states, class_mean.unsqueeze(1)) / self.tau))
 
                                 
