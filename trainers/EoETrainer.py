@@ -48,11 +48,24 @@ class EoETrainer(BaseTrainer):
 
             train_data = data.filter(cur_labels, "train")
             train_dataset = BaseDataset(train_data)
+            
+            for cur_label in cur_labels:
+                model.take_generate_description_MrLinh_from_file(cur_label, data.label2id[cur_label], self.args.dataset_name, tokenizer)
+
+            pool = model.get_description_ids(cur_labels)
+            old_pool = model.get_description_ids(seen_labels)
+            train_data_have_des = data.filter_and_add_desciption_and_old_description(cur_labels, pool, seen_labels, old_pool) 
+            
             num_train_labels = len(cur_labels)
+            
+            train_data = data.filter(cur_labels, "train")
+            
             aug_train_data, num_train_labels = relation_data_augmentation(
-                copy.deepcopy(train_data), len(seen_labels), copy.deepcopy(data.id2label), marker_ids, self.args.augment_type
+                copy.deepcopy(train_data_have_des), len(seen_labels), copy.deepcopy(data.id2label), marker_ids, self.args.augment_type
             )
             aug_train_dataset = BaseDataset(aug_train_data)
+            
+            
             
             
             model.new_task(num_train_labels)
@@ -258,12 +271,6 @@ class EoETrainer(BaseTrainer):
         for i in range(-1, self.task_idx + 1):
             mean, cov, task_mean, task_cov = self.get_mean_and_cov(model, dataset, data_collator, i)
             model.new_statistic(mean, cov, task_mean, task_cov, i)
-            
-            # un_mean, un_cov, un_task_mean, un_task_cov = self.get_mean_and_cov(model, dataset, data_collator, False, i)
-            # model.new_statistic_uninstructed_representation(un_mean, un_cov, un_task_mean, un_task_cov, self.task_idx)
-            
-            # in_mean, in_cov, in_task_mean, in_task_cov = self.get_mean_and_cov(model, dataset, data_collator, True, i)
-            # model.new_statistic_instructed_representation(in_mean, in_cov, in_task_mean, in_task_cov, self.task_idx)
 
     @torch.no_grad()
     def get_mean_and_cov(self, model, dataset, data_collator, expert_id=0):

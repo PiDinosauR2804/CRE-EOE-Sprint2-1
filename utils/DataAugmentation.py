@@ -87,7 +87,7 @@ def relation_data_augmentation(data, num_labels, id2label, marker_id=(35022, 350
             aug_input_ids[subj_ed] = obj_ed_id
             aug_input_ids[obj_st] = subj_st_id
             aug_input_ids[obj_ed] = subj_ed_id
-            augment_data[augment_label].append({
+            new_ins = {
                 "input_ids": aug_input_ids,
                 "subject_marker_st": obj_st,
                 "object_marker_st": subj_st,
@@ -96,8 +96,17 @@ def relation_data_augmentation(data, num_labels, id2label, marker_id=(35022, 350
                 'subject_ed': ins["subject_ed"],
                 'object_st': ins["object_st"],
                 'object_ed': ins["object_ed"],
-                
-            })
+            }
+            # Lọc các key bắt đầu với 'description_ids_'
+            description_list = {k: v for k, v in ins.items() if k.startswith('description_ids_')}
+
+            # Thêm các key-value vào new_ins
+            new_ins.update(description_list)
+
+            augment_data[augment_label].append(new_ins)
+            print("----------------------------")
+            for key, value in new_ins.items():
+                print(f"  {key}: {value}") 
         for _, v in augment_data.items():
             data.extend(v)
         num_train_labels += len(new_label_dict)
@@ -117,7 +126,7 @@ def relation_data_augmentation(data, num_labels, id2label, marker_id=(35022, 350
                 input_ids = obj + subj
             subj_st, subj_ed = input_ids.index(subj_st_id), input_ids.index(subj_ed_id)
             obj_st, obj_ed = input_ids.index(obj_st_id), input_ids.index(obj_ed_id)
-            data.append({
+            new_ins = {
                 "input_ids": input_ids,
                 "subject_marker_st": obj_st,
                 "object_marker_st": subj_st,
@@ -126,7 +135,17 @@ def relation_data_augmentation(data, num_labels, id2label, marker_id=(35022, 350
                 'subject_ed': subj_ed,
                 'object_st': obj_st,
                 'object_ed': obj_ed,
-            })
+            }
+            # Lọc các key bắt đầu với 'description_ids_'
+            description_list = {k: v for k, v in ins.items() if k.startswith('description_ids_')}
+
+            # Thêm các key-value vào new_ins
+            new_ins.update(description_list)
+            
+            print("----------------------------")
+            for key, value in new_ins.items():
+                print(f"  {key}: {value}") 
+            data.append(new_ins)
         num_train_labels += 1
 
     for idx in range(len(data)):
