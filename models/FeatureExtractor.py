@@ -39,7 +39,7 @@ class PeftFeatureExtractor(nn.Module):
         self.dropout = nn.Dropout(self.bert.config.hidden_dropout_prob)
 
         if config.task_name == "RelationExtraction":
-            self.extract_mode = "entity_marker"
+            self.extract_mode = "entity"
         else:
             raise NotImplementedError
 
