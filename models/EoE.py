@@ -374,8 +374,8 @@ class EoE(nn.Module):
                     log_term += torch.log(numerator / denominator)
 
                 total_log_term += (log_term.mean() / self.num_old_labels)
-            # print("----CR Loss-------")
-            # print((total_log_term / len(description_ids_list)).item())
+            print("----CR Loss-------")
+            print((total_log_term / len(description_ids_list)).item())
             loss += (total_log_term / len(description_ids_list)).squeeze(0)
             
             # Add thêm ====================================================================================
