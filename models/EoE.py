@@ -363,20 +363,21 @@ class EoE(nn.Module):
                 #     # numerator_list.append(stack_u_c[:,idx].unsqueeze(-1) * torch.exp(torch.matmul(anchor_hidden_states, class_mean.unsqueeze(1)) / self.tau))
 
                 for kk, old_description_hidden_states in old_description_hidden_states_dict.items():
+                    numerator_list.append(torch.exp((anchor_hidden_states * old_description_hidden_states).sum(dim=1, keepdim=True) / self.tau))
                     denominator_list.append(torch.exp((anchor_hidden_states * old_description_hidden_states).sum(dim=1, keepdim=True) / self.tau))
                                 
                 denominator_list.append(torch.exp((anchor_hidden_states * description_hidden_states).sum(dim=1, keepdim=True) / self.tau))
-                numerator_list.append(torch.exp((anchor_hidden_states * description_hidden_states).sum(dim=1, keepdim=True) / self.tau))
+                # numerator_list.append(torch.exp((anchor_hidden_states * description_hidden_states).sum(dim=1, keepdim=True) / self.tau))
                 denominator = torch.sum(torch.stack(denominator_list), dim=0)
                 # Compute log term
                 log_term = torch.zeros(batch_size, 1, device=self.device)
                 for numerator in numerator_list:
                     log_term += torch.log(numerator / denominator)
 
-                total_log_term += log_term.mean()
+                total_log_term += (log_term.mean()/len(numerator_list))
             # print("----CR Loss-------")
             # print((total_log_term / len(description_ids_list)).item())
-            loss += 2 * (total_log_term / len(description_ids_list)).squeeze(0)
+            loss += (total_log_term / len(description_ids_list)).squeeze(0)
             
             # Add thêm ====================================================================================
 
