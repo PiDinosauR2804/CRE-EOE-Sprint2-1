@@ -172,7 +172,7 @@ class EoETrainer(BaseTrainer):
         for name, param in model.named_parameters():
             if param.requires_grad and "lora_" in name:
                 print(name)
-                # break
+                break
 
         for epoch in range(self.args.num_train_epochs):
             model.train()
