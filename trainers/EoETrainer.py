@@ -41,7 +41,6 @@ class EoETrainer(BaseTrainer):
             self.task_idx = task_idx
             cur_labels = [data.label_list[c] for c in label_order[task_idx]]
             data.add_labels(cur_labels, task_idx)
-            seen_labels += cur_labels
 
             logger.info(f"***** Task-{task_idx + 1} *****")
             logger.info(f"Current classes: {' '.join(cur_labels)}")
@@ -53,9 +52,12 @@ class EoETrainer(BaseTrainer):
                 model.take_generate_description_MrLinh_from_file(cur_label, data.label2id[cur_label], self.args.dataset_name, tokenizer)
 
             pool = model.get_description_ids(cur_labels)
-            train_data_have_des = data.filter_and_add_desciption(cur_labels, pool) 
-            
+            old_pool = model.get_description_ids(seen_labels)
+            # train_data_have_des = data.filter_and_add_desciption(cur_labels, pool) 
+            train_data_have_des = data.filter_and_add_desciption_and_old_description(cur_labels, pool, seen_labels, old_pool) 
             num_train_labels = len(cur_labels)
+            
+            seen_labels += cur_labels
             
             train_data = data.filter(cur_labels, "train")
             
@@ -172,7 +174,7 @@ class EoETrainer(BaseTrainer):
         for name, param in model.named_parameters():
             if param.requires_grad and "lora_" in name:
                 print(name)
-                break
+                # break
 
         for epoch in range(self.args.num_train_epochs):
             model.train()

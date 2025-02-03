@@ -324,7 +324,12 @@ class EoE(nn.Module):
             # Add thêm ====================================================================================
             anchor_hidden_states = hidden_states
             
+            old_description_ids_list = {k: v for k, v in kwargs.items() if k.startswith('old_description_ids_')}
+            
             description_ids_list = {k: v for k, v in kwargs.items() if k.startswith('description_ids_')}
+            
+            # for kk, vv in old_description_ids_list.items():
+                
             total_log_term = torch.zeros(1, device=self.device)
             for k, v in description_ids_list.items():
                 # print("2")
@@ -344,14 +349,24 @@ class EoE(nn.Module):
                 
                 numerator_list = []
                 denominator_list = [] 
-                for idx_ in range(len(self.expert_distribution[self.num_tasks]["class_mean"])):
-                    for idx, class_mean in enumerate(self.expert_distribution[self.num_tasks]["class_mean"][idx_]):
-                        denominator_list.append(torch.exp(torch.matmul(anchor_hidden_states, class_mean.unsqueeze(1)) / self.tau))
-                        # numerator_list.append(torch.exp(torch.matmul(anchor_hidden_states, class_mean.unsqueeze(1)) / self.tau))
-                    # numerator_list.append(stack_u_c[:,idx].unsqueeze(-1) * torch.exp(torch.matmul(anchor_hidden_states, class_mean.unsqueeze(1)) / self.tau))
+                # for idx_ in range(len(self.expert_distribution[self.num_tasks]["class_mean"])):
+                #     for idx, class_mean in enumerate(self.expert_distribution[self.num_tasks]["class_mean"][idx_]):
+                #         denominator_list.append(torch.exp(torch.matmul(anchor_hidden_states, class_mean.unsqueeze(1)) / self.tau))
+                #         # numerator_list.append(torch.exp(torch.matmul(anchor_hidden_states, class_mean.unsqueeze(1)) / self.tau))
+                #     # numerator_list.append(stack_u_c[:,idx].unsqueeze(-1) * torch.exp(torch.matmul(anchor_hidden_states, class_mean.unsqueeze(1)) / self.tau))
 
+                for kk, vv in old_description_ids_list.items():
+                    old_description_hidden_states = self.feature_extractor(
+                        input_ids=vv,
+                        attention_mask=(vv != 0),
+                        indices=indices,
+                        extract_mode="cls",
+                        **kwargs
+                    )
+                    denominator_list.append(torch.exp((anchor_hidden_states * old_description_hidden_states).sum(dim=1, keepdim=True) / self.tau))
                                 
                 denominator_list.append(torch.exp((anchor_hidden_states * description_hidden_states).sum(dim=1, keepdim=True) / self.tau))
+                numerator_list.append(torch.exp((anchor_hidden_states * description_hidden_states).sum(dim=1, keepdim=True) / self.tau))
                 denominator = torch.sum(torch.stack(denominator_list), dim=0)
                 # Compute log term
                 log_term = torch.zeros(batch_size, 1, device=self.device)

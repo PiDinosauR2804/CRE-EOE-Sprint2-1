@@ -175,6 +175,7 @@ class PeftFeatureExtractor(nn.Module):
         # different feature extraction modes
         if extract_mode == "cls":
             hidden_states = outputs[1]  # (batch, dim)
+            hidden_states = self.output_layer(hidden_states)
         elif extract_mode == "mean_pooling":
             # (batch, dim)
             hidden_states = torch.sum(outputs[0] * attention_mask.unsqueeze(-1), dim=1) / \
@@ -196,7 +197,7 @@ class PeftFeatureExtractor(nn.Module):
                 obj = obj.mean(0)
                 hidden_states.append(torch.cat([subj, obj]))
             hidden_states = torch.stack(hidden_states, dim=0)
-            hidden_states = self.output_layer(hidden_states)
+            # hidden_states = self.output_layer(hidden_states)
         elif extract_mode == "entity_marker":
             subject_start_pos = kwargs["subject_marker_st"]
             object_start_pos = kwargs["object_marker_st"]
@@ -205,7 +206,7 @@ class PeftFeatureExtractor(nn.Module):
             ss_emb = last_hidden_states[idx, subject_start_pos]
             os_emb = last_hidden_states[idx, object_start_pos]
             hidden_states = torch.cat([ss_emb, os_emb], dim=-1)  # (batch, 2 * dim)
-            hidden_states = self.output_layer(hidden_states)
+            # hidden_states = self.output_layer(hidden_states)
         else:
             raise NotImplementedError
 
