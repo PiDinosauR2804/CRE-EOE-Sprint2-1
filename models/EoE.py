@@ -376,7 +376,7 @@ class EoE(nn.Module):
                 total_log_term += log_term.mean()
             # print("----CR Loss-------")
             # print((total_log_term / len(description_ids_list)).item())
-            loss += (total_log_term / len(description_ids_list)).squeeze(0)
+            loss += 2 * (total_log_term / len(description_ids_list)).squeeze(0)
             
             # Add thêm ====================================================================================
 
