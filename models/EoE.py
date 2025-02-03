@@ -33,9 +33,9 @@ class EoE(nn.Module):
 
         self.classifier_hidden_size = self.feature_extractor.bert.config.hidden_size
         self.query_size = self.feature_extractor.bert.config.hidden_size
-        # if config.task_name == "RelationExtraction":
-        #     self.classifier_hidden_size = 2 * self.feature_extractor.bert.config.hidden_size
-        #     self.query_size = 2 * self.feature_extractor.bert.config.hidden_size
+        if config.task_name == "RelationExtraction":
+            self.classifier_hidden_size = 2 * self.feature_extractor.bert.config.hidden_size
+            self.query_size = 2 * self.feature_extractor.bert.config.hidden_size
 
         self.dropout = nn.Dropout(self.feature_extractor.bert.config.hidden_dropout_prob)
         self.n_layer = self.feature_extractor.bert.config.num_hidden_layers
@@ -322,14 +322,21 @@ class EoE(nn.Module):
             loss = F.cross_entropy(logits, offset_label)
             
             # Add thêm ====================================================================================
-            anchor_hidden_states = hidden_states
+            anchor_hidden_states = nn.functional.normalize(hidden_states, p=2, dim=-1)
             
             old_description_ids_list = {k: v for k, v in kwargs.items() if k.startswith('old_description_ids_')}
-            
             description_ids_list = {k: v for k, v in kwargs.items() if k.startswith('description_ids_')}
             
-            # for kk, vv in old_description_ids_list.items():
-                
+            old_description_hidden_states_dict = {}
+            for kk, vv in old_description_ids_list.items():
+                old_description_hidden_states_dict[kk] = self.feature_extractor(
+                    input_ids=vv,
+                    attention_mask=(vv != 0),
+                    indices=indices,
+                    extract_mode="cls",
+                    **kwargs
+                )
+                            
             total_log_term = torch.zeros(1, device=self.device)
             for k, v in description_ids_list.items():
                 # print("2")
@@ -355,14 +362,7 @@ class EoE(nn.Module):
                 #         # numerator_list.append(torch.exp(torch.matmul(anchor_hidden_states, class_mean.unsqueeze(1)) / self.tau))
                 #     # numerator_list.append(stack_u_c[:,idx].unsqueeze(-1) * torch.exp(torch.matmul(anchor_hidden_states, class_mean.unsqueeze(1)) / self.tau))
 
-                for kk, vv in old_description_ids_list.items():
-                    old_description_hidden_states = self.feature_extractor(
-                        input_ids=vv,
-                        attention_mask=(vv != 0),
-                        indices=indices,
-                        extract_mode="cls",
-                        **kwargs
-                    )
+                for kk, old_description_hidden_states in old_description_hidden_states_dict.items():
                     denominator_list.append(torch.exp((anchor_hidden_states * old_description_hidden_states).sum(dim=1, keepdim=True) / self.tau))
                                 
                 denominator_list.append(torch.exp((anchor_hidden_states * description_hidden_states).sum(dim=1, keepdim=True) / self.tau))
@@ -374,8 +374,8 @@ class EoE(nn.Module):
                     log_term += torch.log(numerator / denominator)
 
                 total_log_term += (log_term.mean() / self.num_old_labels)
-            print("----CR Loss-------")
-            print((total_log_term / len(description_ids_list)).item())
+            # print("----CR Loss-------")
+            # print((total_log_term / len(description_ids_list)).item())
             loss += (total_log_term / len(description_ids_list)).squeeze(0)
             
             # Add thêm ====================================================================================
