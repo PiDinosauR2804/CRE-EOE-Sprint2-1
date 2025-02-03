@@ -22,7 +22,7 @@ training_args:
   seed: 2021
   device: "cuda:0"
   debug: False
-  train_batch_size: 32
+  train_batch_size: 16
   eval_batch_size: 64
   optim: "adamw"
   learning_rate: 1e-5
