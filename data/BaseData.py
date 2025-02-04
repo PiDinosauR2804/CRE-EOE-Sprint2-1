@@ -117,10 +117,10 @@ class BaseData:
                 pools = descriptions[label]
             sub_res = []
             for anchor in self.train_data[label]:
-                cur_label = anchor["labels"]
-                if cur_label in ['P26', 'P3373', 'per:siblings', 'org:alternate_names', 'per:spouse',
-                                        'per:alternate_names', 'per:other_family']:
-                    continue
+                # cur_label = anchor["labels"]
+                # if cur_label in ['P26', 'P3373', 'per:siblings', 'org:alternate_names', 'per:spouse',
+                #                         'per:alternate_names', 'per:other_family']:
+                #     continue
                 
                 ins = {
                     'input_ids': anchor['input_ids'],  # default: add marker to the head entity and tail entity
@@ -141,9 +141,9 @@ class BaseData:
                     })
                 if lenght_seen_labels != 0:
                     old_labels = seen_labels[count_negative_label%lenght_seen_labels]
-                    ins.update({
-                            'old_labels': self.label2id[old_labels]
-                        })
+                    # ins.update({
+                    #         'old_labels': self.label2id[old_labels]
+                    #     })
                     old_pools = {}
                     if old_labels in old_descriptions.keys():
                         old_pools = old_descriptions[old_labels]

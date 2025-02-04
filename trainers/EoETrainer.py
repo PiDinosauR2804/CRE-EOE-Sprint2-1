@@ -55,16 +55,14 @@ class EoETrainer(BaseTrainer):
 
             pool = model.get_description_ids(cur_labels)
             old_pool = model.get_description_ids(seen_labels)
-            # train_data_have_des = data.filter_and_add_desciption_and_old_description(cur_labels, pool, seen_labels, old_pool) 
+            train_data_have_des = data.filter_and_add_desciption_and_old_description(cur_labels, pool, seen_labels, old_pool) 
             
             num_train_labels = len(cur_labels)
             
             seen_labels += cur_labels
-            
-            # train_data = data.filter(cur_labels, "train")
-            
+                        
             aug_train_data, num_train_labels = relation_data_augmentation(
-                copy.deepcopy(train_data), len(seen_labels), copy.deepcopy(data.id2label), marker_ids, self.args.augment_type
+                copy.deepcopy(train_data_have_des), len(seen_labels), copy.deepcopy(data.id2label), marker_ids, self.args.augment_type
             )
             aug_train_dataset = BaseDataset(aug_train_data)            
             
