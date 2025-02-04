@@ -161,6 +161,6 @@ def relation_data_augmentation(data, num_labels, id2label, marker_id=(35022, 350
             if del_key in data[idx]:
                 del data[idx][del_key]
 
-    print(new_label_dict)
+    # print(new_label_dict)
     return data, num_train_labels
 
