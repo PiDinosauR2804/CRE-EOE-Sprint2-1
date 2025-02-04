@@ -3,7 +3,7 @@ import os
 import random
 import sys
 from types import SimpleNamespace
-import wandb_logger as loggerdb
+import wandb as loggerdb
 
 
 import hydra
@@ -41,12 +41,12 @@ task_to_trainer = {
 
 wandb_api_key = "0806b2d5c00870a95f366d95c825d7680649abb7"  # Thay YOUR_WANDB_API_KEY bằng API key thực tế của bạn
 
+os.environ["WANDB_API_KEY"] = wandb_api_key
+
+loggerdb.login()
+
 # 1. Khởi tạo wandb
-loggerdb.initialize_wandb(
-    project_name="EOE_Sprint2", 
-    run_name="experiment_1", 
-    api_key=wandb_api_key
-)
+loggerdb.init(project_name="EOE_Sprint2")
 
 
 @hydra.main(version_base=None, config_path="configs", config_name="default")

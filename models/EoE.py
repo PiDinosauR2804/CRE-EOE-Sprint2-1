@@ -11,7 +11,7 @@ from models import PeftFeatureExtractor
 from utils import mahalanobis
 
 import re
-import wandb_logger as loggerdb
+import wandb as loggerdb
 
 
 
@@ -378,7 +378,7 @@ class EoE(nn.Module):
                 total_log_term += (log_term.mean()/len(numerator_list))
             # print("----CR Loss-------")
             # print((total_log_term / len(description_ids_list)).item())
-            loss += (total_log_term / len(description_ids_list)).squeeze(0)
+            loss += 0.5 * (total_log_term / len(description_ids_list)).squeeze(0)
 
             loggerdb.log_metrics({f"train/cr_loss_{self.num_tasks}": (total_log_term / len(description_ids_list)).item()})
             loggerdb.log_metrics({f"train/total_loss_{self.num_tasks}": loss.item()})
