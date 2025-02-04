@@ -351,26 +351,13 @@ class EoE(nn.Module):
                     **kwargs
                 )
                 
-                # stack_u_c = []
-                # for label in offset_label:
-                #     stack_u_c.append(self.description_matrix[label])
-                # stack_u_c = torch.stack(stack_u_c)
-                # stack_u_c = torch.tensor(stack_u_c, device=self.device)
-                
                 numerator_list = []
-                denominator_list = [] 
-                # for idx_ in range(len(self.expert_distribution[self.num_tasks]["class_mean"])):
-                #     for idx, class_mean in enumerate(self.expert_distribution[self.num_tasks]["class_mean"][idx_]):
-                #         denominator_list.append(torch.exp(torch.matmul(anchor_hidden_states, class_mean.unsqueeze(1)) / self.tau))
-                #         # numerator_list.append(torch.exp(torch.matmul(anchor_hidden_states, class_mean.unsqueeze(1)) / self.tau))
-                #     # numerator_list.append(stack_u_c[:,idx].unsqueeze(-1) * torch.exp(torch.matmul(anchor_hidden_states, class_mean.unsqueeze(1)) / self.tau))
-
+                denominator_list = []
                 for kk, old_description_hidden_states in old_description_hidden_states_dict.items():
                     numerator_list.append(torch.exp((anchor_hidden_states * old_description_hidden_states).sum(dim=1, keepdim=True) / self.tau))
                     denominator_list.append(torch.exp((anchor_hidden_states * old_description_hidden_states).sum(dim=1, keepdim=True) / self.tau))
                                 
                 denominator_list.append(torch.exp((anchor_hidden_states * description_hidden_states).sum(dim=1, keepdim=True) / self.tau))
-                # numerator_list.append(torch.exp((anchor_hidden_states * description_hidden_states).sum(dim=1, keepdim=True) / self.tau))
                 denominator = torch.sum(torch.stack(denominator_list), dim=0)
                 # Compute log term
                 log_term = torch.zeros(batch_size, 1, device=self.device)
