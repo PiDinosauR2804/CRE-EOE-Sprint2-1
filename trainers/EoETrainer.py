@@ -122,9 +122,9 @@ class EoETrainer(BaseTrainer):
             all_cur_acc.append(cur_acc)
             all_total_acc.append(total_acc)
             all_total_hit.append(total_hit)
-            loggerdb.log_metrics({"train/all_cur_acc": cur_acc})
-            loggerdb.log_metrics({"train/all_total_acc": total_acc})
-            loggerdb.log_metrics({"train/all_total_hit": total_hit})
+            loggerdb.log({"train/all_cur_acc": cur_acc})
+            loggerdb.log({"train/all_total_acc": total_acc})
+            loggerdb.log({"train/all_total_hit": total_hit})
 
         # save distribution
         save_data = {
