@@ -46,7 +46,7 @@ os.environ["WANDB_API_KEY"] = wandb_api_key
 loggerdb.login()
 
 # 1. Khởi tạo wandb
-loggerdb.init(project_name="EOE_Sprint2")
+loggerdb.init(project="EOE_Sprint2")
 
 
 @hydra.main(version_base=None, config_path="configs", config_name="default")
@@ -128,8 +128,8 @@ def main(cfg: DictConfig):
             avg_exp_results[idx] = sum(c) / len(exp_results)
             avg_exp_results[idx] = round(avg_exp_results[idx], 2)
             std_exp_results[idx] = float(np.std(c))
-            loggerdb.log_metrics({f"train/{k}_avg": avg_exp_results[idx]})
-            loggerdb.log_metrics({f"train/{k}_std": std_exp_results[idx]})
+            loggerdb.log({f"train/{k}_avg": avg_exp_results[idx]})
+            loggerdb.log({f"train/{k}_std": std_exp_results[idx]})
         logger.info(f"{k} average : {avg_exp_results}")
         logger.info(f"{k}  std    : {std_exp_results}")
     logger.info("Training end !")

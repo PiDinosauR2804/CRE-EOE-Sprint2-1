@@ -321,7 +321,7 @@ class EoE(nn.Module):
         if self.training:
             offset_label = labels - self.num_old_labels
             loss = F.cross_entropy(logits, offset_label)
-            loggerdb.log_metrics({f"train/loss_cross_entropy_{self.num_tasks}": loss.item()})
+            loggerdb.log({f"train/loss_cross_entropy_{self.num_tasks}": loss.item()})
             # Add thêm ====================================================================================
             anchor_hidden_states = nn.functional.normalize(hidden_states, p=2, dim=-1)
             
@@ -380,8 +380,8 @@ class EoE(nn.Module):
             # print((total_log_term / len(description_ids_list)).item())
             loss += 0.5 * (total_log_term / len(description_ids_list)).squeeze(0)
 
-            loggerdb.log_metrics({f"train/cr_loss_{self.num_tasks}": (total_log_term / len(description_ids_list)).item()})
-            loggerdb.log_metrics({f"train/total_loss_{self.num_tasks}": loss.item()})
+            loggerdb.log({f"train/cr_loss_{self.num_tasks}": (total_log_term / len(description_ids_list)).item()})
+            loggerdb.log({f"train/total_loss_{self.num_tasks}": loss.item()})
             
             # Add thêm ====================================================================================
 
