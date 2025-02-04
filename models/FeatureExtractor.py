@@ -38,7 +38,6 @@ class PeftFeatureExtractor(nn.Module):
         self.hidden_size = self.bert.config.hidden_size
         self.dropout = nn.Dropout(self.bert.config.hidden_dropout_prob)
         self.output_layer = nn.Linear(self.hidden_size, self.hidden_size*2)
-        self.layer_norm = nn.LayerNorm(self.hidden_size * 2)
 
         if config.task_name == "RelationExtraction":
             self.extract_mode = "entity_marker"
@@ -177,7 +176,6 @@ class PeftFeatureExtractor(nn.Module):
         if extract_mode == "cls":
             hidden_states = outputs[1]  # (batch, dim)
             hidden_states = self.output_layer(hidden_states)
-            hidden_states = self.layer_norm(hidden_states)
             hidden_states = nn.functional.normalize(hidden_states, p=2, dim=-1)
         elif extract_mode == "mean_pooling":
             # (batch, dim)
@@ -200,7 +198,6 @@ class PeftFeatureExtractor(nn.Module):
                 obj = obj.mean(0)
                 hidden_states.append(torch.cat([subj, obj]))
             hidden_states = torch.stack(hidden_states, dim=0)
-            # hidden_states = self.output_layer(hidden_states)
         elif extract_mode == "entity_marker":
             subject_start_pos = kwargs["subject_marker_st"]
             object_start_pos = kwargs["object_marker_st"]
@@ -209,7 +206,6 @@ class PeftFeatureExtractor(nn.Module):
             ss_emb = last_hidden_states[idx, subject_start_pos]
             os_emb = last_hidden_states[idx, object_start_pos]
             hidden_states = torch.cat([ss_emb, os_emb], dim=-1)  # (batch, 2 * dim)
-            # hidden_states = self.output_layer(hidden_states)
         else:
             raise NotImplementedError
 

@@ -92,10 +92,6 @@ def relation_data_augmentation(data, num_labels, id2label, marker_id=(35022, 350
                 "subject_marker_st": obj_st,
                 "object_marker_st": subj_st,
                 "labels": augment_label,
-                'subject_st': ins["subject_st"],
-                'subject_ed': ins["subject_ed"],
-                'object_st': ins["object_st"],
-                'object_ed': ins["object_ed"],
             }
             # Lọc các key bắt đầu với 'description_ids_'
             description_list = {k: v for k, v in ins.items() if k.startswith('description_ids_')}
@@ -103,8 +99,8 @@ def relation_data_augmentation(data, num_labels, id2label, marker_id=(35022, 350
             # Thêm các key-value vào new_ins
             new_ins.update(description_list)
             
-            if 'old_labels' in ins.keys():
-                new_ins.update({'old_labels': ins['old_labels']})
+            # if 'old_labels' in ins.keys():
+            #     new_ins.update({'old_labels': ins['old_labels']})
                 
             old_description_list = {k: v for k, v in ins.items() if k.startswith('old_description_ids_')}
 
@@ -138,10 +134,6 @@ def relation_data_augmentation(data, num_labels, id2label, marker_id=(35022, 350
                 "subject_marker_st": obj_st,
                 "object_marker_st": subj_st,
                 "labels": num_train_labels,
-                'subject_st': subj_st,
-                'subject_ed': subj_ed,
-                'object_st': obj_st,
-                'object_ed': obj_ed,
             }
             # Lọc các key bắt đầu với 'description_ids_'
             description_list = {k: v for k, v in ins.items() if k.startswith('description_ids_')}
@@ -149,8 +141,8 @@ def relation_data_augmentation(data, num_labels, id2label, marker_id=(35022, 350
             # Thêm các key-value vào new_ins
             new_ins.update(description_list)
             
-            if 'old_labels' in ins.keys():
-                new_ins.update({'old_labels': ins['old_labels']})
+            # if 'old_labels' in ins.keys():
+            #     new_ins.update({'old_labels': ins['old_labels']})
             
             old_description_list = {k: v for k, v in ins.items() if k.startswith('old_description_ids_')}
 
@@ -164,8 +156,8 @@ def relation_data_augmentation(data, num_labels, id2label, marker_id=(35022, 350
         num_train_labels += 1
 
     for idx in range(len(data)):
-        # for del_key in ["sentence", "input_ids_without_marker", "subject_st", "subject_ed", "object_st", "object_ed"]:
-        for del_key in ["sentence", "input_ids_without_marker"]:
+        for del_key in ["sentence", "input_ids_without_marker", "subject_st", "subject_ed", "object_st", "object_ed"]:
+        # for del_key in ["sentence", "input_ids_without_marker"]:
             if del_key in data[idx]:
                 del data[idx][del_key]
 
