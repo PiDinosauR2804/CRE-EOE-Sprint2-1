@@ -3,6 +3,8 @@ import os
 import random
 import sys
 from types import SimpleNamespace
+import wandb_logger as loggerdb
+
 
 import hydra
 import numpy as np
@@ -36,6 +38,15 @@ task_to_trainer = {
     "ExpertTrainer": ExpertTrainer,
     "EoETrainer": EoETrainer,
 }
+
+wandb_api_key = "0806b2d5c00870a95f366d95c825d7680649abb7"  # Thay YOUR_WANDB_API_KEY bằng API key thực tế của bạn
+
+# 1. Khởi tạo wandb
+loggerdb.initialize_wandb(
+    project_name="EOE_Sprint2", 
+    run_name="experiment_1", 
+    api_key=wandb_api_key
+)
 
 
 @hydra.main(version_base=None, config_path="configs", config_name="default")
@@ -117,6 +128,8 @@ def main(cfg: DictConfig):
             avg_exp_results[idx] = sum(c) / len(exp_results)
             avg_exp_results[idx] = round(avg_exp_results[idx], 2)
             std_exp_results[idx] = float(np.std(c))
+            loggerdb.log_metrics({f"train/{k}_avg": avg_exp_results[idx]})
+            loggerdb.log_metrics({f"train/{k}_std": std_exp_results[idx]})
         logger.info(f"{k} average : {avg_exp_results}")
         logger.info(f"{k}  std    : {std_exp_results}")
     logger.info("Training end !")

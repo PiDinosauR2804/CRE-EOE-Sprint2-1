@@ -11,6 +11,8 @@ from torch.optim import AdamW
 from torch.utils.data import DataLoader
 from tqdm import tqdm
 from transformers import set_seed
+import wandb_logger as loggerdb
+
 
 from data import BaseDataset
 from trainers import BaseTrainer
@@ -120,6 +122,9 @@ class EoETrainer(BaseTrainer):
             all_cur_acc.append(cur_acc)
             all_total_acc.append(total_acc)
             all_total_hit.append(total_hit)
+            loggerdb.log_metrics({"train/all_cur_acc": cur_acc})
+            loggerdb.log_metrics({"train/all_total_acc": total_acc})
+            loggerdb.log_metrics({"train/all_total_hit": total_hit})
 
         # save distribution
         save_data = {
