@@ -70,6 +70,7 @@ def main(cfg: DictConfig):
     args.additional_special_tokens = additional_special_tokens
     args.additional_special_tokens_len = len(additional_special_tokens)
 
+    logger.info(f"Edition: No TAP with {args.num_description} description")
     logger.info(f"additional special tokens: {additional_special_tokens}")
     tokenizer = AutoTokenizer.from_pretrained(
         args.tokenizer_name if args.tokenizer_name else args.model_name_or_path,
