@@ -3,6 +3,8 @@
 # Cài đặt thư viện cần thiết
 pip install hydra-core
 pip install -r requirements.txt
+pip install peft
+
 
 # Chạy lệnh Python với tham số cụ thể
 python main.py \
