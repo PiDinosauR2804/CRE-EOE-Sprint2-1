@@ -257,6 +257,7 @@ class EoE(nn.Module):
                     all_logits.append(logits)
                 all_score_over_task.append(scores_over_tasks)
                 all_score_over_class.append(scores_over_classes)
+                
             all_score_over_task = torch.stack(all_score_over_task, dim=1)  # (batch, expert_num, task_num)
             all_score_over_class = torch.stack(all_score_over_class, dim=1)  # (batch, expert_num, task_num)
             all_logits = torch.stack(all_logits, dim=1)
